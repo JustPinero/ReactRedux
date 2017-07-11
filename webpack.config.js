@@ -16,7 +16,8 @@ module.exports = {
         ],
         loader: 'babel-loader',
         options: {
-          presets: ['react', 'es2015', 'stage-2']
+          presets: ['react', 'es2015', 'stage-2'],
+          plugins: ['transform-object-rest-spread']
         }
       },
       {
@@ -30,4 +31,3 @@ module.exports = {
     ]
   }
 };
-

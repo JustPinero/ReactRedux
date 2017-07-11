@@ -11,7 +11,8 @@ const initialState = {
   messages: [],
   name: 'Reggie',
   newMessageEntry: '',
-  channels:[]
+  channels:[],
+  newChannelEntry: ''
 };
 
 // ACTION TYPES
@@ -20,7 +21,9 @@ const UPDATE_NAME = 'UPDATE_NAME';
 const GET_MESSAGE = 'GET_MESSAGE';
 const GET_MESSAGES = 'GET_MESSAGES';
 const WRITE_MESSAGE = 'WRITE_MESSAGE';
+const GET_CHANNEL = 'GET_CHANNEL'
 const GET_CHANNELS = 'GET_CHANNELS'
+const WRITE_CHANNEL = 'WRITE_CHANNEL'
 
 // ACTION CREATORS
 
@@ -44,8 +47,18 @@ export function writeMessage (content) {
   return action;
 }
 
+export function getChannel (channel){
+  const action= { type: GET_CHANNEL, channel}
+  return action;
+}
+
 export function getChannels (channels){
   const action={ type: GET_CHANNELS, channels}
+  return action;
+}
+
+export function writeChannel (content) {
+  const action = { type: WRITE_CHANNEL, content };
   return action;
 }
 
@@ -74,7 +87,6 @@ export function postMessage (message) {
         socket.emit('new-message', newMessage);
       });
   }
-
 }
 
   export function fetchChannels (channels) {
@@ -86,7 +98,18 @@ export function postMessage (message) {
         dispatch(action);
       });
     }
+  }
 
+  export function postChannel (channel) {
+    return function thunk (dispatch) {
+      return axios.post('/api/channels', channel)
+        .then(res => res.data)
+        .then(newChannel => {
+          const action = getChannel(newChannel);
+          dispatch(action);
+          socket.emit('new-channel', newChannel);
+        });
+    }
   }
 // REDUCER
 
@@ -139,11 +162,24 @@ function reducer (state = initialState, action) {
         ...state,
         newMessageEntry: action.content
       };
+
+      case GET_CHANNEL:
+        return {
+          ...state,
+          channels: [...state.channels, action.channel]
+        };
+
       case GET_CHANNELS:
         return {
           ...state,
           channels: action.channels
         };
+
+        case WRITE_CHANNEL:
+          return {
+            ...state,
+            newChannelEntry: action.content
+          };
 
     default:
       return state;
